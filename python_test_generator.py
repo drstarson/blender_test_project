@@ -15,7 +15,7 @@ def set_up_table(obj_path, clear_scene=True):
     '''Imports an obj file, scales is so that the height is 76.2 blender units, 
     sets to highest point in Z=0, centers on the other two axies
     
-    Keywork Auguments
+    Keywork Arguments
     
     obj_path -- the absolute path of the obj file that is to be imported, including the file itself.
     clear_scene -- Boolean, decides if the function deletes every object from the scene (default = True)
@@ -23,7 +23,7 @@ def set_up_table(obj_path, clear_scene=True):
     
     objects = bpy.data.objects
     
-    #Cleared Any default objects from the scene
+    #cleared any default objects from the scene
     if clear_scene:
         for i in objects:
             objects.remove(i)
@@ -34,12 +34,12 @@ def set_up_table(obj_path, clear_scene=True):
     bpy.data.objects[0].name = obj_name[1]
     table = bpy.data.objects[obj_name[1]]
     
-    #changes the hight of table & scales accordingly
+    #changes the hight of the table & scales accordingly
     table.dimensions.y = 76.2
     table.scale.x = table.scale.y
     table.scale.z = table.scale.y
 
-    #findging the vertical bounds of the table to align the top to the world's origin
+    #finds the vertical bounds of the table to align the top to the world's origin
 
     verticalBounds = []
     for v in table.data.vertices:
@@ -54,7 +54,7 @@ def create_PBR_mat(object, file_path, texture_name):
     '''Creates a material with a PBR node tree and textures and applies it to the object. 
     Textures must use the Poliigon.com naming scheme. 
     
-    Keywork Auguments:
+    Keywork Arguments
         
     object -- a bpy.data.objects class
     file_path -- the file path to the image textures
@@ -75,11 +75,11 @@ def create_PBR_mat(object, file_path, texture_name):
     material = bpy.data.materials.new(object.name)
     object.data.materials.append(material)
 
-    #Applies the material to all material slots
+    #applies the material to all material slots
     for slots in range(0,len(object.material_slots)):
         object.material_slots[slots].material = material
             
-    #Enables nodes & clears all nodes
+    #enables nodes & clears all nodes
     material.use_nodes = True
     for node in material.node_tree.nodes:
         material.node_tree.nodes.remove(node)
@@ -127,14 +127,31 @@ def create_PBR_mat(object, file_path, texture_name):
     text_ref_node.image = bpy.data.images[complete_images[3]]
 
 def set_enviroment_tex (file_path,texture_name):
+    '''creates a HDRI material and applies it to the enviroment
+    
+    Keywork Arguments
+    
+    file_path -- string that contains filepath of HDRI
+    texture_name -- the name of the texture, including its extention
+    '''
+    
+    #makes sure the end fo the path does not include a file
+    path_check = os.path.split(file_path)
+    filepath = path_check[0]
+    
+    bpy.data.scenes[0].render.engine = 'CYCLES'
+    
+    
     full_path = os.path.join(file_path, texture_name)
     image = bpy.ops.image.open( filepath = full_path)
     world = bpy.data.worlds[0]
-
+    
+    #enables nodes and clears the current node tree
+    world.use_nodes = True
     for node in world.node_tree.nodes:
         world.node_tree.nodes.remove(node)
 
-    world.use_nodes = True
+    #creates a new node tree and applies the HDRI    
     env_node = world.node_tree.nodes.new('ShaderNodeTexEnvironment')
     bg_shader = world.node_tree.nodes.new('ShaderNodeBackground')
     output_node = world.node_tree.nodes.new('ShaderNodeOutputWorld')
@@ -148,7 +165,7 @@ def set_enviroment_tex (file_path,texture_name):
 
 objects = bpy.data.objects
 
-#Clears Scene, Imports table, scales and transforms
+#clears Scene, Imports table, scales and transforms
 table = set_up_table(table_path)
 
 #adds a ground plane, scales, and centers it
@@ -166,7 +183,7 @@ for material in range(len(bpy.data.materials)):
 create_PBR_mat(table,texture_path,"WoodFine26")
 create_PBR_mat(ground_plane,texture_path,"WoodFine26") #need to find a texture setup
 
-#Set up HDRI (make sure HDRI is not lighting scene)
+#set up HDRI (make sure HDRI is not lighting scene)
 set_enviroment_tex(env_map_path, 'cayley_interior_1k.hdr')
 
 #set up render settings
