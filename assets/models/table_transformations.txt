@@ -1,0 +1,8 @@
+Height = 76.2
+
+scale = 20.787
+z= 30.47412
+x,y = 0
+
+todo: fix crack
+
