@@ -484,10 +484,4 @@ comp_nodes_setup()
 # Renders!!!
 bpy.ops.render.render(write_still=True)
 
-
-
 # test from command line
-# path is currently relative to blender file path, not script path
-#fix split down the center of the model
-#put through pip8 thing
-#delete all print nodes
